@@ -1,3 +1,4 @@
+using ArenaBreak.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -23,6 +24,7 @@ namespace ArenaBreak.Player
         [Header("Fire")]
         [SerializeField] private float _fireInterval = 0.15f;
         [SerializeField] private float _range = 50f;
+        [SerializeField] private float _damage = 10f;
 
         [Header("Ammo")]
         [SerializeField] private int _magazineSize = 12;
@@ -143,6 +145,14 @@ namespace ArenaBreak.Player
             if (Physics.Raycast(ray, out RaycastHit hit, _range, _hitMask, QueryTriggerInteraction.Ignore))
             {
                 SpawnHitMarker(hit.point);
+
+                // 콜라이더가 자식에 붙은 적도 맞히도록 부모까지 탐색한다
+                IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
+                if (damageable != null)
+                {
+                    damageable.TakeDamage(_damage);
+                }
+
                 Debug.Log($"발사 - 명중: {hit.collider.name} / 남은 탄약 {_currentAmmo}/{_magazineSize}");
             }
             else
