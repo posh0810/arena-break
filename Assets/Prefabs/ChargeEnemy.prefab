@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 6821039775151806664}
   - component: {fileID: 1992393699042423201}
   - component: {fileID: 2376065727563741548}
+  - component: {fileID: 2251732640206582848}
   m_Layer: 0
   m_Name: ChargeEnemy
   m_TagString: Untagged
@@ -176,3 +177,16 @@ MonoBehaviour:
   _cooldownDuration: 5
   _attackInterval: 2
   _attackDamage: 15
+--- !u!114 &2251732640206582848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3247741594049636714}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6effc3e9b92f1c743917b90c04d716b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaBreak.Enemy.HitFlash
+  _flashDuration: 0.05
