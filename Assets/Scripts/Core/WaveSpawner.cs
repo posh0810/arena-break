@@ -113,7 +113,7 @@ namespace ArenaBreak.Core
 
             for (int i = 0; i < wave.SpawnCount; i++)
             {
-                SpawnEnemy(wave.EnemyPrefab);
+                SpawnEnemy(wave.GetRandomPrefab());
 
                 if (i < wave.SpawnCount - 1)
                 {
@@ -130,21 +130,44 @@ namespace ArenaBreak.Core
             enemy.transform.SetPositionAndRotation(point.position, point.rotation);
             enemy.SetActive(true);
 
-            if (!enemy.TryGetComponent(out EnemyAI enemyAI) || !enemy.TryGetComponent(out Health health))
+            if (!enemy.TryGetComponent(out Health health))
             {
-                Debug.LogError($"{nameof(WaveSpawner)}: 적 프리팹 '{prefab.name}'에 EnemyAI 또는 Health가 없습니다.", this);
+                Debug.LogError($"{nameof(WaveSpawner)}: 적 프리팹 '{prefab.name}'에 Health가 없습니다.", this);
+                ReturnToPool(prefab, enemy);
+                return;
+            }
+
+            if (!TryReinitializeController(enemy, _player))
+            {
+                Debug.LogError($"{nameof(WaveSpawner)}: 적 프리팹 '{prefab.name}'에 EnemyAI 또는 ChargeEnemyAI가 없습니다.", this);
                 ReturnToPool(prefab, enemy);
                 return;
             }
 
             health.Reinitialize();
-            enemyAI.Reinitialize(_player);
 
             _aliveCount++;
             Action handler = null;
             handler = () => OnEnemyDied(prefab, enemy, health, handler);
             _deathHandlers[health] = handler;
             health.Died += handler;
+        }
+
+        private bool TryReinitializeController(GameObject enemy, Transform player)
+        {
+            if (enemy.TryGetComponent(out EnemyAI enemyAI))
+            {
+                enemyAI.Reinitialize(player);
+                return true;
+            }
+
+            if (enemy.TryGetComponent(out ArenaBreak.Enemy.ChargeEnemyAI chargeAI))
+            {
+                chargeAI.Reinitialize(player);
+                return true;
+            }
+
+            return false;
         }
 
         private GameObject GetFromPool(GameObject prefab)

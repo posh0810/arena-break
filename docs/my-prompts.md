@@ -69,6 +69,34 @@
 
 ### 2-6. 과제 — 원거리 적 또는 돌진 적
 
+### 시도 1
+```
+기존 Enemy AI를 수정하지 않고 별도 클래스로 변형 된 Enemy AI 를 만들어야 해
+Health / IDamageable 는 그대로 재사용 해야 함
+WaveData 에 넣어서 실제로 웨이브에 기존 Enemy AI 와 섞여 나오게 해야 함
+
+별도 클래스로 변형 된 Enemy AI 설명
+평소엔 느리다가 일정 거리 안에 들어오면 2초 동안 빠르게 돌진하고 이후 5초간의 쿨다운이 있음
+```
+**결과**: ChargeEnemyAI : EnemyAI 상속 구조로 접근함
+**문제점**: EnemyAI의 `_state`, `_agent`, `SetState()`, `Update()` 가 전부 `private` / 비-virtual → 하위 클래스에서 접근·override 불가. 돌진 상태를 끼워 넣으려면 EnemyAI 자체를 고쳐야 함
+**원인 분석**: 상속은 부모의 내부를 열어 줄 때만 유효하다. EnemyAI는 처음부터 단일 책임으로 닫혀 있어서 상속 확장점이 없음. "기존 클래스를 수정하지 않는다"는 조건과 충돌
+
+### 시도 2
+```
+기존 Enemy AI를 수정하지 않고 별도 클래스로 변형 된 Enemy AI 를 만들어야 해
+Health / IDamageable 는 그대로 재사용 해야 함
+WaveData 에 넣어서 실제로 웨이브에 기존 Enemy AI 와 섞여 나오게 해야 함
+
+최소 2번 이상 시도해야하며 실패한 프롬프트도 my-prompts.md 에 남겨줘
+
+별도 클래스로 변형 된 Enemy AI 설명
+평소엔 느리다가 일정 거리 안에 들어오면 2초 동안 빠르게 돌진하고 이후 5초간의 쿨다운이 있음
+```
+**무엇을 바꿨나**: 상속을 버리고 `ChargeEnemyAI : MonoBehaviour` 완전 독립 클래스로 재설계. WaveData에 `List<GameObject> _enemyPrefabs` 추가해 웨이브마다 혼합 스폰 가능하게 함. WaveSpawner에 `TryReinitializeController()` 추가로 EnemyAI / ChargeEnemyAI 둘 다 처리
+**결과**: 컴파일 에러 없이 작동. EnemyAI 코드 한 줄도 수정하지 않음. 기존 Wave_1~3 에셋의 `_enemyPrefab` 참조 그대로 유지되면서, Inspector에서 `_enemyPrefabs` 리스트에 ChargeEnemy 프리팹을 추가하면 혼합 스폰됨
+**배운 점**: 닫힌 클래스를 확장할 때는 상속보다 독립 컴포넌트가 맞다. WaveSpawner가 구체 타입을 두 개 아는 건 이상적이지 않지만, 지금 규모에서는 인터페이스 도입보다 단순한 쪽이 낫다는 트레이드오프를 선택함
+
 ---
 
 ## 3장
