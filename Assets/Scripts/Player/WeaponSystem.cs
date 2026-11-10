@@ -1,3 +1,4 @@
+using System;
 using ArenaBreak.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -43,6 +44,8 @@ namespace ArenaBreak.Player
         private float _nextFireTime;
         private float _reloadEndTime;
         private bool _isReloading;
+
+        public event Action<int, int> AmmoChanged;
 
         private void Awake()
         {
@@ -153,12 +156,9 @@ namespace ArenaBreak.Player
                     damageable.TakeDamage(_damage);
                 }
 
-                Debug.Log($"발사 - 명중: {hit.collider.name} / 남은 탄약 {_currentAmmo}/{_magazineSize}");
             }
-            else
-            {
-                Debug.Log($"발사 - 빗나감 / 남은 탄약 {_currentAmmo}/{_magazineSize}");
-            }
+
+            AmmoChanged?.Invoke(_currentAmmo, _magazineSize);
         }
 
         private void OnReloadPerformed(InputAction.CallbackContext context)
@@ -170,14 +170,13 @@ namespace ArenaBreak.Player
 
             _isReloading = true;
             _reloadEndTime = Time.time + _reloadDuration;
-            Debug.Log($"재장전 시작 - 남은 탄약 {_currentAmmo}/{_magazineSize}");
         }
 
         private void FinishReload()
         {
             _isReloading = false;
             _currentAmmo = _magazineSize;
-            Debug.Log($"재장전 완료 - 남은 탄약 {_currentAmmo}/{_magazineSize}");
+            AmmoChanged?.Invoke(_currentAmmo, _magazineSize);
         }
 
         // 발사마다 생성/파괴되므로 풀링 대상

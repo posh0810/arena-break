@@ -27,10 +27,12 @@ namespace ArenaBreak.Core
         private Transform _poolRoot;
         private WaitUntil _waitUntilAllDead;
         private int _aliveCount;
+        private int _killCount;
 
         public event Action<int> WaveStarted;
         public event Action<int> WaveCleared;
         public event Action AllWavesCleared;
+        public event Action<int> EnemyKilled;
 
         public int TotalWaves => _waves.Count;
 
@@ -205,6 +207,8 @@ namespace ArenaBreak.Core
             }
 
             _aliveCount--;
+            _killCount++;
+            EnemyKilled?.Invoke(_killCount);
             StartCoroutine(ReturnToPoolDelayed(prefab, enemy));
         }
 
