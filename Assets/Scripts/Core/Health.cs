@@ -24,6 +24,14 @@ namespace ArenaBreak.Core
             _currentHealth = _maxHealth;
         }
 
+        // 풀에서 꺼낼 때 체력과 무적 타이머를 초기 상태로 되돌린다
+        public void Reinitialize()
+        {
+            _currentHealth = _maxHealth;
+            _invincibleUntil = 0f;
+            HealthChanged?.Invoke(_currentHealth, _maxHealth);
+        }
+
         public void TakeDamage(float amount)
         {
             if (IsDead || amount <= 0f || Time.time < _invincibleUntil)

@@ -16,10 +16,15 @@ namespace ArenaBreak.Core
         [SerializeField] private Transform _spawnPointsRoot;
         [SerializeField] private Transform _player;
 
+        [Header("Pool")]
+        [SerializeField] private float _returnToPoolDelay = 1f;
+
         private readonly List<Transform> _spawnPoints = new List<Transform>();
         // 이벤트를 구독 해제하려면 구독할 때 쓴 델리게이트를 그대로 들고 있어야 한다
         private readonly Dictionary<Health, Action> _deathHandlers = new Dictionary<Health, Action>();
+        private readonly Dictionary<GameObject, Queue<GameObject>> _pool = new Dictionary<GameObject, Queue<GameObject>>();
 
+        private Transform _poolRoot;
         private WaitUntil _waitUntilAllDead;
         private int _aliveCount;
 
@@ -32,6 +37,9 @@ namespace ArenaBreak.Core
         private void Awake()
         {
             _waitUntilAllDead = new WaitUntil(() => _aliveCount == 0);
+
+            _poolRoot = new GameObject("_EnemyPool").transform;
+            _poolRoot.SetParent(transform);
 
             if (_spawnPointsRoot == null)
             {
@@ -117,32 +125,70 @@ namespace ArenaBreak.Core
         private void SpawnEnemy(GameObject prefab)
         {
             Transform point = _spawnPoints[UnityEngine.Random.Range(0, _spawnPoints.Count)];
-            GameObject enemy = Instantiate(prefab, point.position, point.rotation);
+
+            GameObject enemy = GetFromPool(prefab);
+            enemy.transform.SetPositionAndRotation(point.position, point.rotation);
+            enemy.SetActive(true);
 
             if (!enemy.TryGetComponent(out EnemyAI enemyAI) || !enemy.TryGetComponent(out Health health))
             {
                 Debug.LogError($"{nameof(WaveSpawner)}: 적 프리팹 '{prefab.name}'에 EnemyAI 또는 Health가 없습니다.", this);
-                Destroy(enemy);
+                ReturnToPool(prefab, enemy);
                 return;
             }
 
-            enemyAI.SetTarget(_player);
+            health.Reinitialize();
+            enemyAI.Reinitialize(_player);
 
             _aliveCount++;
-            Action handler = () => OnEnemyDied(health);
+            Action handler = null;
+            handler = () => OnEnemyDied(prefab, enemy, health, handler);
             _deathHandlers[health] = handler;
             health.Died += handler;
         }
 
-        private void OnEnemyDied(Health health)
+        private GameObject GetFromPool(GameObject prefab)
         {
-            if (_deathHandlers.TryGetValue(health, out Action handler))
+            if (_pool.TryGetValue(prefab, out Queue<GameObject> queue) && queue.Count > 0)
+            {
+                return queue.Dequeue();
+            }
+
+            GameObject instance = Instantiate(prefab, _poolRoot);
+            instance.SetActive(false);
+            return instance;
+        }
+
+        private void ReturnToPool(GameObject prefab, GameObject enemy)
+        {
+            enemy.SetActive(false);
+            enemy.transform.SetParent(_poolRoot);
+
+            if (!_pool.TryGetValue(prefab, out Queue<GameObject> queue))
+            {
+                queue = new Queue<GameObject>();
+                _pool[prefab] = queue;
+            }
+
+            queue.Enqueue(enemy);
+        }
+
+        private void OnEnemyDied(GameObject prefab, GameObject enemy, Health health, Action handler)
+        {
+            if (_deathHandlers.ContainsKey(health))
             {
                 health.Died -= handler;
                 _deathHandlers.Remove(health);
             }
 
             _aliveCount--;
+            StartCoroutine(ReturnToPoolDelayed(prefab, enemy));
+        }
+
+        private IEnumerator ReturnToPoolDelayed(GameObject prefab, GameObject enemy)
+        {
+            yield return new WaitForSeconds(_returnToPoolDelay);
+            ReturnToPool(prefab, enemy);
         }
     }
 }

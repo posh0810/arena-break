@@ -29,9 +29,6 @@ namespace ArenaBreak.Enemy
         [SerializeField] private float _attackInterval = 2f;
         [SerializeField] private float _attackDamage = 10f;
 
-        [Header("Death")]
-        [SerializeField] private float _destroyDelay = 1f;
-
         private NavMeshAgent _agent;
         private Health _health;
         private IDamageable _targetDamageable;
@@ -61,6 +58,15 @@ namespace ArenaBreak.Enemy
         {
             _target = target;
             CacheTargetDamageable();
+        }
+
+        // 풀에서 꺼낸 뒤 호출. 상태와 타겟을 초기화한다
+        public void Reinitialize(Transform target)
+        {
+            _target = target;
+            CacheTargetDamageable();
+            _nextAttackTime = 0f;
+            SetState(EnemyState.Idle);
         }
 
         private void Update()
@@ -158,7 +164,7 @@ namespace ArenaBreak.Enemy
         private void OnDied()
         {
             SetState(EnemyState.Dead);
-            Destroy(gameObject, _destroyDelay);
+            // 오브젝트 파괴는 WaveSpawner 풀이 처리한다
         }
 
         // Update에서 GetComponent를 부르지 않도록 대상이 정해질 때 한 번만 찾는다
