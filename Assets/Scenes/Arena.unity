@@ -1440,6 +1440,7 @@ MonoBehaviour:
   _damage: 10
   _magazineSize: 12
   _reloadDuration: 1.5
+  _hitParticlePrefab: {fileID: 8485850602717680739, guid: ae67ae56e583ae94f87fd728307204ca, type: 3}
   _hitMarkerColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   _hitMarkerSize: 0.15
   _hitMarkerLifetime: 0.5

@@ -31,6 +31,9 @@ namespace ArenaBreak.Player
         [SerializeField] private int _magazineSize = 12;
         [SerializeField] private float _reloadDuration = 1.5f;
 
+        [Header("Hit Particle")]
+        [SerializeField] private ParticleSystem _hitParticlePrefab;
+
         [Header("Hit Marker (Debug)")]
         [SerializeField] private Color _hitMarkerColor = Color.yellow;
         [SerializeField] private float _hitMarkerSize = 0.15f;
@@ -148,6 +151,7 @@ namespace ArenaBreak.Player
             if (Physics.Raycast(ray, out RaycastHit hit, _range, _hitMask, QueryTriggerInteraction.Ignore))
             {
                 SpawnHitMarker(hit.point);
+                SpawnHitParticle(hit.point, hit.normal);
 
                 // 콜라이더가 자식에 붙은 적도 맞히도록 부모까지 탐색한다
                 IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
@@ -177,6 +181,16 @@ namespace ArenaBreak.Player
             _isReloading = false;
             _currentAmmo = _magazineSize;
             AmmoChanged?.Invoke(_currentAmmo, _magazineSize);
+        }
+
+        // 발사마다 생성/파괴되므로 풀링 대상
+        private void SpawnHitParticle(Vector3 position, Vector3 normal)
+        {
+            if (_hitParticlePrefab == null) return;
+
+            // 반구 shape가 로컬 Y 방향으로 방출되므로, Y를 법선 방향으로 세운다
+            Quaternion rotation = Quaternion.FromToRotation(Vector3.up, normal);
+            Instantiate(_hitParticlePrefab, position, rotation);
         }
 
         // 발사마다 생성/파괴되므로 풀링 대상
