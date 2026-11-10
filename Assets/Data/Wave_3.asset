@@ -13,5 +13,8 @@ MonoBehaviour:
   m_Name: Wave_3
   m_EditorClassIdentifier: Assembly-CSharp::ArenaBreak.Core.WaveData
   _enemyPrefab: {fileID: 3247741594049636714, guid: c6f6a074119f632408ad9738e18f117d, type: 3}
+  _enemyPrefabs:
+  - {fileID: 3247741594049636714, guid: c6f6a074119f632408ad9738e18f117d, type: 3}
+  - {fileID: 3247741594049636714, guid: 5ac208dc5ffb52e44afe91eb306cdfe5, type: 3}
   _spawnCount: 8
   _spawnInterval: 0.6

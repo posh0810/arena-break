@@ -688,6 +688,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArenaBreak.Core.Health
   _maxHealth: 30
   _invincibilityDuration: 0
+--- !u!134 &270830890
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -835,6 +848,7 @@ GameObject:
   m_Component:
   - component: {fileID: 403828936}
   - component: {fileID: 403828935}
+  - component: {fileID: 403828937}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -858,9 +872,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2174b1efad2d63d4ca45f604eeff72ae, type: 2}
   - {fileID: 11400000, guid: a4e0d93ac654e064c9db8c8a02bf77b5, type: 2}
   - {fileID: 11400000, guid: 181261c5253a949469e9b1dbf4241a77, type: 2}
+  - {fileID: 11400000, guid: df50a5b5692889040b6d34db4c90cb53, type: 2}
+  - {fileID: 11400000, guid: 65f0c7d0f34ee5b4994a3565cce61fde, type: 2}
   _nextWaveDelay: 3
   _spawnPointsRoot: {fileID: 1993861842}
   _player: {fileID: 569337426}
+  _returnToPoolDelay: 1
 --- !u!4 &403828936
 Transform:
   m_ObjectHideFlags: 0
@@ -876,6 +893,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &403828937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 403828934}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17da2bf1ae5d51d468b0482088efc680, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaBreak.Core.GameManager
+  _readyDuration: 3
+  _playerHealth: {fileID: 569337429}
+  _waveSpawner: {fileID: 403828935}
+  _playerController: {fileID: 569337424}
+  _weaponSystem: {fileID: 569337427}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -1053,7 +1087,7 @@ CharacterController:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 569337423}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 270830890}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -1141,7 +1175,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f12a35eff8d916468d068a8482e1592, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArenaBreak.Core.Health
-  _maxHealth: 100
+  _maxHealth: 500
   _invincibilityDuration: 2
 --- !u!1 &617883950
 GameObject:
