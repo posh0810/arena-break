@@ -27,22 +27,40 @@ namespace ArenaBreak.UI
         [SerializeField] private WaveSpawner _waveSpawner;
         [SerializeField] private GameManager _gameManager;
 
+        private void Start()
+        {
+            if (_healthFill == null || _ammoText == null || _waveText == null ||
+                _killText == null || _endPanel == null || _endMessageText == null ||
+                _playerHealth == null || _weaponSystem == null ||
+                _waveSpawner == null || _gameManager == null)
+            {
+                Debug.LogError($"{nameof(HUDController)}: 필드가 모두 할당돼야 합니다.", this);
+                enabled = false;
+            }
+        }
+
         private void OnEnable()
         {
-            _playerHealth.HealthChanged += OnHealthChanged;
-            _weaponSystem.AmmoChanged   += OnAmmoChanged;
-            _waveSpawner.WaveStarted    += OnWaveStarted;
-            _waveSpawner.EnemyKilled    += OnEnemyKilled;
-            _gameManager.StateChanged   += OnStateChanged;
+            if (_playerHealth != null) _playerHealth.HealthChanged += OnHealthChanged;
+            if (_weaponSystem  != null) _weaponSystem.AmmoChanged   += OnAmmoChanged;
+            if (_waveSpawner   != null)
+            {
+                _waveSpawner.WaveStarted += OnWaveStarted;
+                _waveSpawner.EnemyKilled += OnEnemyKilled;
+            }
+            if (_gameManager != null) _gameManager.StateChanged += OnStateChanged;
         }
 
         private void OnDisable()
         {
-            _playerHealth.HealthChanged -= OnHealthChanged;
-            _weaponSystem.AmmoChanged   -= OnAmmoChanged;
-            _waveSpawner.WaveStarted    -= OnWaveStarted;
-            _waveSpawner.EnemyKilled    -= OnEnemyKilled;
-            _gameManager.StateChanged   -= OnStateChanged;
+            if (_playerHealth != null) _playerHealth.HealthChanged -= OnHealthChanged;
+            if (_weaponSystem  != null) _weaponSystem.AmmoChanged   -= OnAmmoChanged;
+            if (_waveSpawner   != null)
+            {
+                _waveSpawner.WaveStarted -= OnWaveStarted;
+                _waveSpawner.EnemyKilled -= OnEnemyKilled;
+            }
+            if (_gameManager != null) _gameManager.StateChanged -= OnStateChanged;
         }
 
         private void OnHealthChanged(float current, float max)

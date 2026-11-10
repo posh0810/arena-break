@@ -12,7 +12,6 @@ namespace ArenaBreak.Core
         [SerializeField] private int _spawnCount = 5;
         [SerializeField] private float _spawnInterval = 1f;
 
-        public GameObject EnemyPrefab => _enemyPrefab;
         public int SpawnCount => _spawnCount;
         public float SpawnInterval => _spawnInterval;
 
@@ -20,9 +19,10 @@ namespace ArenaBreak.Core
         public GameObject GetRandomPrefab()
         {
             if (_enemyPrefabs != null && _enemyPrefabs.Count > 0)
-            {
                 return _enemyPrefabs[Random.Range(0, _enemyPrefabs.Count)];
-            }
+
+            if (_enemyPrefab == null)
+                Debug.LogError($"{nameof(WaveData)} '{name}': 프리팹이 할당되지 않았습니다.");
 
             return _enemyPrefab;
         }

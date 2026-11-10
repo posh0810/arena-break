@@ -39,11 +39,19 @@ namespace ArenaBreak.Enemy
         private float _chargeEndTime;
         private float _cooldownEndTime;
         private float _nextAttackTime;
+        private float _chaseRangeSq;
+        private float _chargeRangeSq;
+        private float _attackRangeSq;
+        private float _attackExitRangeSq;
 
         private void Awake()
         {
             _agent = GetComponent<NavMeshAgent>();
             _health = GetComponent<Health>();
+            _chaseRangeSq     = _chaseRange * _chaseRange;
+            _chargeRangeSq    = _chargeRange * _chargeRange;
+            _attackRangeSq    = _attackRange * _attackRange;
+            _attackExitRangeSq = (_attackRange + _attackExitMargin) * (_attackRange + _attackExitMargin);
             CacheTargetDamageable();
         }
 
@@ -85,25 +93,25 @@ namespace ArenaBreak.Enemy
                 return;
             }
 
-            float dist = Vector3.Distance(transform.position, _target.position);
+            float sqDist = (transform.position - _target.position).sqrMagnitude;
 
             switch (_state)
             {
                 case State.Idle:
-                    if (dist <= _chaseRange) SetState(State.Chase);
+                    if (sqDist <= _chaseRangeSq) SetState(State.Chase);
                     break;
 
                 case State.Chase:
-                    if (dist > _chaseRange) { SetState(State.Idle); break; }
-                    if (dist <= _chargeRange) { SetState(State.Charge); break; }
+                    if (sqDist > _chaseRangeSq) { SetState(State.Idle); break; }
+                    if (sqDist <= _chargeRangeSq) { SetState(State.Charge); break; }
                     if (_agent.isOnNavMesh) _agent.SetDestination(_target.position);
-                    if (dist <= _attackRange) TryAttack();
+                    if (sqDist <= _attackRangeSq) TryAttack();
                     break;
 
                 case State.Charge:
                     if (Time.time >= _chargeEndTime) { SetState(State.Cooldown); break; }
                     if (_agent.isOnNavMesh) _agent.SetDestination(_target.position);
-                    if (dist <= _attackRange) TryAttack();
+                    if (sqDist <= _attackRangeSq) TryAttack();
                     break;
 
                 case State.Cooldown:

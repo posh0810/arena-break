@@ -111,6 +111,12 @@ namespace ArenaBreak.Core
 
         private IEnumerator SpawnWave(WaveData wave)
         {
+            if (wave.SpawnCount == 0)
+            {
+                Debug.LogWarning($"{nameof(WaveSpawner)}: WaveData '{wave.name}'의 SpawnCount가 0입니다.", this);
+                yield break;
+            }
+
             var interval = new WaitForSeconds(wave.SpawnInterval);
 
             for (int i = 0; i < wave.SpawnCount; i++)
@@ -126,6 +132,12 @@ namespace ArenaBreak.Core
 
         private void SpawnEnemy(GameObject prefab)
         {
+            if (prefab == null)
+            {
+                Debug.LogError($"{nameof(WaveSpawner)}: 스폰할 프리팹이 null입니다. WaveData를 확인하세요.", this);
+                return;
+            }
+
             Transform point = _spawnPoints[UnityEngine.Random.Range(0, _spawnPoints.Count)];
 
             GameObject enemy = GetFromPool(prefab);

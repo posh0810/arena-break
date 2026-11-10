@@ -35,11 +35,17 @@ namespace ArenaBreak.Enemy
 
         private EnemyState _state = EnemyState.Idle;
         private float _nextAttackTime;
+        private float _chaseRangeSq;
+        private float _attackRangeSq;
+        private float _attackExitRangeSq;
 
         private void Awake()
         {
             _agent = GetComponent<NavMeshAgent>();
             _health = GetComponent<Health>();
+            _chaseRangeSq     = _chaseRange * _chaseRange;
+            _attackRangeSq    = _attackRange * _attackRange;
+            _attackExitRangeSq = (_attackRange + _attackExitMargin) * (_attackRange + _attackExitMargin);
             CacheTargetDamageable();
         }
 
@@ -82,23 +88,23 @@ namespace ArenaBreak.Enemy
                 return;
             }
 
-            float distance = Vector3.Distance(transform.position, _target.position);
+            float sqDist = (transform.position - _target.position).sqrMagnitude;
 
             switch (_state)
             {
                 case EnemyState.Idle:
-                    if (distance <= _chaseRange)
+                    if (sqDist <= _chaseRangeSq)
                     {
                         SetState(EnemyState.Chase);
                     }
                     break;
 
                 case EnemyState.Chase:
-                    if (distance > _chaseRange)
+                    if (sqDist > _chaseRangeSq)
                     {
                         SetState(EnemyState.Idle);
                     }
-                    else if (distance <= _attackRange)
+                    else if (sqDist <= _attackRangeSq)
                     {
                         SetState(EnemyState.Attack);
                     }
@@ -109,7 +115,7 @@ namespace ArenaBreak.Enemy
                     break;
 
                 case EnemyState.Attack:
-                    if (distance > _attackRange + _attackExitMargin)
+                    if (sqDist > _attackExitRangeSq)
                     {
                         SetState(EnemyState.Chase);
                     }
@@ -158,7 +164,6 @@ namespace ArenaBreak.Enemy
             _nextAttackTime = Time.time + _attackInterval;
 
             _targetDamageable?.TakeDamage(_attackDamage);
-            Debug.Log($"{name} 공격 - 데미지 {_attackDamage}");
         }
 
         private void OnDied()

@@ -23,6 +23,7 @@ namespace ArenaBreak.Core
         private InputAction _quitAction;
 
         private GameState _state;
+        private bool _isInitialized;
 
         // HUDController 등이 구독한다
         public event Action<GameState> StateChanged;
@@ -49,8 +50,11 @@ namespace ArenaBreak.Core
             _restartAction.Disable();
             _quitAction.Disable();
 
-            if (_playerHealth != null)  _playerHealth.Died         -= OnPlayerDied;
-            if (_waveSpawner  != null)  _waveSpawner.AllWavesCleared -= OnAllWavesCleared;
+            if (_isInitialized)
+            {
+                _playerHealth.Died           -= OnPlayerDied;
+                _waveSpawner.AllWavesCleared -= OnAllWavesCleared;
+            }
         }
 
         private void OnDestroy()
@@ -70,6 +74,7 @@ namespace ArenaBreak.Core
 
             _playerHealth.Died          += OnPlayerDied;
             _waveSpawner.AllWavesCleared += OnAllWavesCleared;
+            _isInitialized = true;
 
             ChangeState(GameState.Ready);
             StartCoroutine(ReadyToPlaying());

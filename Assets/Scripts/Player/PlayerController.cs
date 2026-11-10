@@ -117,6 +117,12 @@ namespace ArenaBreak.Player
                 return false;
             }
 
+            if (_cameraPivot == null)
+            {
+                Debug.LogError($"{nameof(PlayerController)}: CameraPivot이 할당되지 않았습니다.", this);
+                return false;
+            }
+
             return true;
         }
 
